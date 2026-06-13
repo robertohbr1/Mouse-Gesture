@@ -1,0 +1,284 @@
+<Window x:Class="MouseKeyb.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:MouseKeyb"
+        Title="MouseKeyb - Gestos de Mouse para Atalhos de Teclado" 
+        Height="550" Width="850"
+        Background="#0C0C0E"
+        Foreground="#FFFFFF"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanMinimize"
+        Closing="Window_Closing">
+    <Window.Resources>
+        <!-- Custom modern styling for buttons -->
+        <Style x:Key="ModernButtonStyle" TargetType="Button">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#FF00D2FF" Offset="0"/>
+                        <GradientStop Color="#FF0072FF" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Opacity" Value="0.9"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="DangerButtonStyle" TargetType="Button" BasedOn="{StaticResource ModernButtonStyle}">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#FFFF416C" Offset="0"/>
+                        <GradientStop Color="#FFFF4B2B" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource ModernButtonStyle}">
+            <Setter Property="Background" Value="#1E1E24"/>
+            <Setter Property="Foreground" Value="#E1E1E6"/>
+            <Setter Property="BorderBrush" Value="#2A2A30"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    
+    <Grid>
+        <!-- Main Dashboard View -->
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Grid Grid.Row="0" Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="MouseKeyb" FontSize="28" FontWeight="Bold">
+                        <TextBlock.Foreground>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#FF00D2FF" Offset="0"/>
+                                <GradientStop Color="#FF9D00FF" Offset="1"/>
+                            </LinearGradientBrush>
+                        </TextBlock.Foreground>
+                    </TextBlock>
+                    <TextBlock Text="Desenhe gestos segurando o botão direito do mouse para disparar atalhos" 
+                               Foreground="#8F8F9D" FontSize="13" Margin="0,4,0,0"/>
+                </StackPanel>
+
+                <Button Grid.Column="1" Content="+ Novo Gesto" 
+                        Style="{StaticResource ModernButtonStyle}" 
+                        Click="AddMappingButton_Click" Height="36"/>
+            </Grid>
+
+            <!-- Content Area split in two -->
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="280"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Left Panel: List of Mappings -->
+                <ListBox x:Name="MappingsListBox" Grid.Column="0" 
+                         Background="Transparent" BorderThickness="0"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         Margin="0,0,15,0">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="Background" Value="#16161A"/>
+                            <Setter Property="Margin" Value="0,0,0,10"/>
+                            <Setter Property="Padding" Value="15"/>
+                            <Setter Property="BorderBrush" Value="#222226"/>
+                            <Setter Property="BorderThickness" Value="1"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                        <Border Background="{TemplateBinding Background}"
+                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                CornerRadius="8"
+                                                Padding="{TemplateBinding Padding}">
+                                            <ContentPresenter/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#1F1F24"/>
+                                    <Setter Property="BorderBrush" Value="#303036"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="{x:Type local:GestureMapping}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Column 1: Action Name & Keycaps representation -->
+                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                    <TextBox Text="{Binding ActionName, UpdateSourceTrigger=PropertyChanged}" 
+                                             Background="Transparent" Foreground="#FFFFFF" BorderThickness="0" 
+                                             FontSize="15" FontWeight="SemiBold" Margin="0,0,0,5"
+                                             GotFocus="TextBox_GotFocus" LostFocus="TextBox_LostFocus"/>
+                                    
+                                    <ItemsControl ItemsSource="{Binding Keys}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Horizontal"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate DataType="{x:Type local:KeyStroke}">
+                                                <Border Background="#2C2C35" BorderBrush="#3D3D4A" BorderThickness="1" 
+                                                        CornerRadius="4" Padding="6,3" Margin="0,0,5,0">
+                                                    <TextBlock Text="{Binding Name}" Foreground="#E1E1E6" FontSize="11" FontWeight="Bold"/>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+
+                                <!-- Column 2: Gesture pattern display -->
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="15,0">
+                                    <TextBlock Text="Gesto: " Foreground="#8F8F9D" VerticalAlignment="Center"/>
+                                    <TextBox Text="{Binding Pattern, UpdateSourceTrigger=PropertyChanged}" 
+                                             Foreground="#FF00D2FF" FontWeight="Bold" FontSize="16" 
+                                             Width="60" TextAlignment="Center" Background="#22222A" 
+                                             BorderBrush="#3D3D4A" BorderThickness="1" Padding="4"
+                                             GotFocus="TextBox_GotFocus" LostFocus="TextBox_LostFocus"/>
+                                </StackPanel>
+
+                                <!-- Column 3: Edit Buttons -->
+                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Button Content="Gravar Teclas" Style="{StaticResource SecondaryButtonStyle}" 
+                                            Click="RecordKeys_Click" Padding="10,6" Margin="0,0,8,0"/>
+                                    <Button Content="Excluir" Style="{StaticResource DangerButtonStyle}" 
+                                            Click="DeleteMapping_Click" Padding="10,6"/>
+                                </StackPanel>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <!-- Right Panel: Global Settings -->
+                <Border Grid.Column="1" Background="#16161A" BorderBrush="#222226" BorderThickness="1" CornerRadius="8" Padding="15">
+                    <StackPanel>
+                        <TextBlock Text="Configurações Globais" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,15"/>
+                        
+                        <TextBlock Text="Limiar de Movimento (px)" Foreground="#8F8F9D" Margin="0,0,0,5"/>
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="50"/>
+                            </Grid.ColumnDefinitions>
+                            <Slider x:Name="ThresholdSlider" Minimum="15" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True"
+                                    Grid.Column="0" VerticalAlignment="Center" ValueChanged="ThresholdSlider_ValueChanged"/>
+                            <TextBlock Text="{Binding ElementName=ThresholdSlider, Path=Value, StringFormat={}{0:0}}" 
+                                       Grid.Column="1" Foreground="#FFFFFF" FontWeight="Bold" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        </Grid>
+
+                        <CheckBox x:Name="TrayMinimizeCheckBox" Content="Minimizar ao fechar a janela" Foreground="#FFFFFF" Margin="0,0,0,15"/>
+
+                        <Border Background="#22222A" CornerRadius="6" Padding="10" Margin="0,10,0,0">
+                            <StackPanel>
+                                <TextBlock Text="Legenda dos Traços:" FontWeight="SemiBold" Margin="0,0,0,5" Foreground="#FF00D2FF"/>
+                                <TextBlock Text="• U = Para Cima (Up)&#x0a;• D = Para Baixo (Down)&#x0a;• L = Para Esquerda (Left)&#x0a;• R = Para Direita (Right)" 
+                                           Foreground="#8F8F9D" LineHeight="18"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Footer -->
+            <Grid Grid.Row="2" Margin="0,15,0,0">
+                <TextBlock Text="Desenvolvido com .NET 10" Foreground="#4F4F5C" FontSize="11" HorizontalAlignment="Left"/>
+                <Button Content="Salvar Configurações" Style="{StaticResource ModernButtonStyle}" 
+                        Click="SaveSettings_Click" HorizontalAlignment="Right" Padding="20,8"/>
+            </Grid>
+        </Grid>
+
+        <!-- Keystroke Recording Modal Overlay -->
+        <Grid x:Name="RecorderOverlay" Visibility="Collapsed" Background="#D80C0C0E">
+            <Border Background="#16161A" BorderBrush="#FF00D2FF" BorderThickness="1.5"
+                    CornerRadius="10" Width="420" Height="220" 
+                    HorizontalAlignment="Center" VerticalAlignment="Center" Padding="20">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0">
+                        <TextBlock Text="Gravando Atalho de Teclado" FontSize="18" FontWeight="Bold" Foreground="#FF00D2FF"/>
+                        <TextBlock Text="Pressione as teclas no seu teclado físico..." Foreground="#8F8F9D" FontSize="12" Margin="0,4,0,0"/>
+                    </StackPanel>
+
+                    <!-- Captured keys list -->
+                    <Border Grid.Row="1" Background="#22222A" CornerRadius="6" Margin="0,15" Padding="10" VerticalAlignment="Center">
+                        <TextBlock x:Name="CapturedKeysText" Text="Nenhuma tecla pressionada" 
+                                   Foreground="#FFFFFF" FontSize="18" FontWeight="Bold" 
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Content="Salvar" Style="{StaticResource ModernButtonStyle}" 
+                                Click="SaveRecordedKeys_Click" Margin="0,0,10,0"/>
+                        <Button Grid.Column="1" Content="Cancelar" Style="{StaticResource SecondaryButtonStyle}" 
+                                Click="CancelRecording_Click" Margin="10,0,0,0"/>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

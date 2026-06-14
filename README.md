@@ -75,6 +75,26 @@ dotnet test MouseKeyb.Tests/MouseKeyb.Tests.csproj
 
 ---
 
+## 🎮 Gestos Padrão Configurados
+
+O sistema já vem pré-configurado com uma série de gestos e atalhos úteis:
+
+| Nome do Comando (Programa) | Movimento (Gesto) | Combinação de Teclas | Descrição do Atalho |
+| :--- | :---: | :--- | :--- |
+| **Browser - Fechar Aba** | `D` *(Down)* | `<Ctrl>+W` | Fecha a aba ativa do navegador |
+| **Browser - Voltar** | `L` *(Left)* | `<Alt>+Left` | Volta à página anterior |
+| **Browser - Avançar** | `R` *(Right)* | `<Alt>+Right` | Avança para a próxima página |
+| **Browser - Nova Aba** | `U` *(Up)* | `<Ctrl>+T` | Abre uma nova aba no navegador |
+| **Browser - Reabrir Aba Fechada** | `UD` *(Up-Down)* | `<Ctrl>+<Shift>+T` | Reabre a última aba que foi fechada |
+| **Browser - Próxima Aba** | `DR` *(Down-Right)* | `<Ctrl>+Tab` | Alterna para a próxima aba à direita |
+| **Browser - Aba Anterior** | `DL` *(Down-Left)* | `<Ctrl>+<Shift>+Tab` | Alterna para a aba à esquerda |
+| **Browser - Recarregar Página** | `RU` *(Right-Up)* | `F5` | Recarrega a página atual |
+| **Windows - Fechar Janela** | `UL` *(Up-Left)* | `<Alt>+F4` | Fecha o aplicativo ou janela em foco |
+| **Windows - Mostrar Área de Trabalho** | `LU` *(Left-Up)* | `<Win>+D` | Minimiza todas as janelas para ver o desktop |
+| **Windows - Alternar Janelas** | `LD` *(Left-Down)* | `<Win>+Tab` | Abre o Task View do Windows |
+
+---
+
 ## 📂 Estrutura de Arquivos de Configuração
 
 As configurações e mapeamentos são serializados em formato JSON e salvos na pasta de dados locais do usuário:
@@ -86,10 +106,11 @@ As configurações e mapeamentos são serializados em formato JSON e salvos na p
   "Mappings": [
     {
       "Pattern": "D",
-      "ActionName": "Fechar Aba (Ctrl+W)",
+      "ActionName": "Browser - Fechar Aba",
       "Keys": [
-        { "Vk": 17, "Name": "Ctrl" },
-        { "Vk": 87, "Name": "W" }
+        { "Vk": 162, "Name": "Ctrl", "Type": "Down" },
+        { "Vk": 87, "Name": "W", "Type": "Press" },
+        { "Vk": 162, "Name": "Ctrl", "Type": "Up" }
       ]
     }
   ],

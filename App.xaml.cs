@@ -109,6 +109,7 @@ public partial class App : System.Windows.Application
         _hook.RightButtonDown += OnRightButtonDown;
         _hook.GestureMove += OnGestureMove;
         _hook.GestureComplete += OnGestureComplete;
+        _hook.RightButtonUp += OnRightButtonUp;
         _hook.Start();
     }
 
@@ -128,6 +129,11 @@ public partial class App : System.Windows.Application
             return;
         }
         _overlay.AddPoint(new System.Windows.Point(pt.x, pt.y));
+    }
+
+    private void OnRightButtonUp(object? sender, POINT pt)
+    {
+        _overlay.FadeOutAndHide();
     }
 
     private void Log(string message)

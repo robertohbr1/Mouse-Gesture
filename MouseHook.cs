@@ -42,6 +42,7 @@ public class MouseHook
     public event EventHandler<POINT>? RightButtonDown;
     public event EventHandler<POINT>? GestureMove;
     public event EventHandler<List<POINT>>? GestureComplete;
+    public event EventHandler<POINT>? RightButtonUp;
 
     [StructLayout(LayoutKind.Sequential)]
     private struct MSLLHOOKSTRUCT
@@ -177,6 +178,7 @@ public class MouseHook
     private bool HandleRightButtonUp(POINT pt)
     {
         _isTracking = false;
+        RightButtonUp?.Invoke(this, pt);
         if (_isGestureActive)
         {
             GestureComplete?.Invoke(this, new List<POINT>(_points));

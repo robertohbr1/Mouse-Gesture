@@ -75,6 +75,42 @@ public class KeyboardSimulator
         SendNativeInputs(inputs);
     }
 
+    /// <summary>
+    /// Simulates a sequence of KeyStrokes containing Down, Up, and Press keyboard events.
+    /// </summary>
+    public void SimulateKeys(System.Collections.Generic.List<KeyStroke> keyStrokes)
+    {
+        if (keyStrokes == null || keyStrokes.Count == 0)
+        {
+            return;
+        }
+
+        var inputs = CreateInputSequence(keyStrokes);
+        SendNativeInputs(inputs);
+    }
+
+    private NativeInput.INPUT[] CreateInputSequence(System.Collections.Generic.List<KeyStroke> keyStrokes)
+    {
+        var inputList = new System.Collections.Generic.List<NativeInput.INPUT>();
+        foreach (var stroke in keyStrokes)
+        {
+            if (stroke.Type == KeyEventType.Press)
+            {
+                inputList.Add(CreateInput(stroke.Vk, 0));
+                inputList.Add(CreateInput(stroke.Vk, NativeInput.KEYEVENTF_KEYUP));
+            }
+            else if (stroke.Type == KeyEventType.Down)
+            {
+                inputList.Add(CreateInput(stroke.Vk, 0));
+            }
+            else if (stroke.Type == KeyEventType.Up)
+            {
+                inputList.Add(CreateInput(stroke.Vk, NativeInput.KEYEVENTF_KEYUP));
+            }
+        }
+        return inputList.ToArray();
+    }
+
     private NativeInput.INPUT[] CreateInputSequence(ushort[] virtualKeys)
     {
         int count = virtualKeys.Length;
@@ -103,9 +139,26 @@ public class KeyboardSimulator
         }
     }
 
+    private const uint KEYEVENTF_EXTENDEDKEY = 0x0001;
+
+    private bool IsExtendedKey(ushort vk)
+    {
+        return (vk >= 0x21 && vk <= 0x28) || // PageUp, PageDown, End, Home, Left, Up, Right, Down
+               (vk >= 0x2D && vk <= 0x2E) || // Insert, Delete
+               vk == 0xA3 || vk == 0xA5 ||   // RControl, RMenu (Right Alt)
+               vk == 0x6F ||                 // Divide (Numpad /)
+               vk == 0x90;                   // NumLock
+    }
+
     private NativeInput.INPUT CreateInput(ushort virtualKey, uint flags)
     {
         ushort scanCode = (ushort)NativeInput.MapVirtualKey(virtualKey, 0);
+        uint finalFlags = flags;
+        if (IsExtendedKey(virtualKey))
+        {
+            finalFlags |= KEYEVENTF_EXTENDEDKEY;
+        }
+
         return new NativeInput.INPUT
         {
             type = NativeInput.INPUT_KEYBOARD,
@@ -115,7 +168,7 @@ public class KeyboardSimulator
                 {
                     wVk = virtualKey,
                     wScan = scanCode,
-                    dwFlags = flags,
+                    dwFlags = finalFlags,
                     time = 0,
                     dwExtraInfo = UIntPtr.Zero
                 }

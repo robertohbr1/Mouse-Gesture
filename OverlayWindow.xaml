@@ -19,5 +19,19 @@
                 <DropShadowEffect Color="#FF00D2FF" BlurRadius="15" ShadowDepth="0" Opacity="0.8"/>
             </Polyline.Effect>
         </Polyline>
+
+        <!-- Dynamic gesture guide HUD menu -->
+        <Border x:Name="UpBorder" Background="#D0101010" CornerRadius="4" Padding="8,4" Visibility="Collapsed" BorderBrush="#3000D2FF" BorderThickness="1">
+            <TextBlock x:Name="UpLabel" Foreground="#FF00D2FF" FontSize="11" FontFamily="Segoe UI" FontWeight="Bold"/>
+        </Border>
+        <Border x:Name="DownBorder" Background="#D0101010" CornerRadius="4" Padding="8,4" Visibility="Collapsed" BorderBrush="#3000D2FF" BorderThickness="1">
+            <TextBlock x:Name="DownLabel" Foreground="#FF00D2FF" FontSize="11" FontFamily="Segoe UI" FontWeight="Bold"/>
+        </Border>
+        <Border x:Name="LeftBorder" Background="#D0101010" CornerRadius="4" Padding="8,4" Visibility="Collapsed" BorderBrush="#3000D2FF" BorderThickness="1">
+            <TextBlock x:Name="LeftLabel" Foreground="#FF00D2FF" FontSize="11" FontFamily="Segoe UI" FontWeight="Bold"/>
+        </Border>
+        <Border x:Name="RightBorder" Background="#D0101010" CornerRadius="4" Padding="8,4" Visibility="Collapsed" BorderBrush="#3000D2FF" BorderThickness="1">
+            <TextBlock x:Name="RightLabel" Foreground="#FF00D2FF" FontSize="11" FontFamily="Segoe UI" FontWeight="Bold"/>
+        </Border>
     </Canvas>
 </Window>

@@ -27,6 +27,10 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        if (System.Windows.Application.Current is App app)
+        {
+            app.MainWindow = this;
+        }
         _store = new SettingsStore();
         _settings = _store.Load();
         Mappings = new ObservableCollection<GestureMapping>(_settings.Mappings);
@@ -34,6 +38,7 @@ public partial class MainWindow : Window
         ThresholdSlider.Value = _settings.SegmentThreshold;
         TrayMinimizeCheckBox.IsChecked = true;
         PreviewKeyDown += MainWindow_PreviewKeyDown;
+        PreviewKeyUp += MainWindow_PreviewKeyUp;
     }
 
     private void AddMappingButton_Click(object sender, RoutedEventArgs e)
@@ -74,7 +79,7 @@ public partial class MainWindow : Window
     {
         if (_mappingBeingRecorded != null && _recordedKeys.Count > 0)
         {
-            _mappingBeingRecorded.Keys = new List<KeyStroke>(_recordedKeys);
+            _mappingBeingRecorded.Keys = GestureMapping.CollapseEvents(_recordedKeys);
             MappingsListBox.Items.Refresh();
         }
         CloseRecorderOverlay();
@@ -94,6 +99,21 @@ public partial class MainWindow : Window
 
     private void MainWindow_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
     {
+        if (RecorderOverlay.Visibility != Visibility.Visible || e.IsRepeat)
+        {
+            return;
+        }
+        e.Handled = true;
+        var key = e.Key == Key.System ? e.SystemKey : e.Key;
+        ushort vk = (ushort)KeyInterop.VirtualKeyFromKey(key);
+        string name = GetKeyName(key);
+
+        _recordedKeys.Add(new KeyStroke { Vk = vk, Name = name, Type = KeyEventType.Down });
+        UpdateCapturedKeysText();
+    }
+
+    private void MainWindow_PreviewKeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+    {
         if (RecorderOverlay.Visibility != Visibility.Visible)
         {
             return;
@@ -101,11 +121,10 @@ public partial class MainWindow : Window
         e.Handled = true;
         var key = e.Key == Key.System ? e.SystemKey : e.Key;
         ushort vk = (ushort)KeyInterop.VirtualKeyFromKey(key);
-        if (!_recordedKeys.Any(k => k.Vk == vk))
-        {
-            _recordedKeys.Add(new KeyStroke { Vk = vk, Name = GetKeyName(key) });
-            UpdateCapturedKeysText();
-        }
+        string name = GetKeyName(key);
+
+        _recordedKeys.Add(new KeyStroke { Vk = vk, Name = name, Type = KeyEventType.Up });
+        UpdateCapturedKeysText();
     }
 
     private string GetKeyName(Key key)
@@ -119,12 +138,8 @@ public partial class MainWindow : Window
 
     private void UpdateCapturedKeysText()
     {
-        var keyNames = new List<string>();
-        foreach (var key in _recordedKeys)
-        {
-            keyNames.Add(key.Name);
-        }
-        CapturedKeysText.Text = string.Join(" + ", keyNames);
+        var tempMapping = new GestureMapping { Keys = GestureMapping.CollapseEvents(_recordedKeys) };
+        CapturedKeysText.Text = tempMapping.KeysString;
     }
 
     private void SaveSettings_Click(object sender, RoutedEventArgs e)
@@ -163,6 +178,15 @@ public partial class MainWindow : Window
         {
             e.Cancel = true;
             Hide();
+        }
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        base.OnClosed(e);
+        if (System.Windows.Application.Current is App app)
+        {
+            app.MainWindow = null;
         }
     }
 }

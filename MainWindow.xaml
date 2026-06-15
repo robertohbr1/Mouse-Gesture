@@ -73,6 +73,27 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style x:Key="ModernTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="#1C1C22"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#2D2D38"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="CaretBrush" Value="#FF00D2FF"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="5">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="2,0"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
     
     <Grid>
@@ -159,37 +180,39 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
-                                <!-- Column 1: Action Name & Keycaps representation -->
+                                <!-- Column 1: Action Name & Key sequence input -->
                                 <StackPanel Grid.Column="0" VerticalAlignment="Center">
                                     <TextBox Text="{Binding ActionName, UpdateSourceTrigger=PropertyChanged}" 
-                                             Background="Transparent" Foreground="#FFFFFF" BorderThickness="0" 
-                                             FontSize="15" FontWeight="SemiBold" Margin="0,0,0,5"
+                                             Style="{StaticResource ModernTextBoxStyle}"
+                                             FontWeight="SemiBold" Width="240" HorizontalAlignment="Left"
                                              GotFocus="TextBox_GotFocus" LostFocus="TextBox_LostFocus"/>
                                     
-                                    <ItemsControl ItemsSource="{Binding Keys}">
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <StackPanel Orientation="Horizontal"/>
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate DataType="{x:Type local:KeyStroke}">
-                                                <Border Background="#2C2C35" BorderBrush="#3D3D4A" BorderThickness="1" 
-                                                        CornerRadius="4" Padding="6,3" Margin="0,0,5,0">
-                                                    <TextBlock Text="{Binding Name}" Foreground="#E1E1E6" FontSize="11" FontWeight="Bold"/>
-                                                </Border>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
+                                    <TextBox Text="{Binding KeysString, UpdateSourceTrigger=PropertyChanged}" 
+                                             Style="{StaticResource ModernTextBoxStyle}"
+                                             Foreground="#FF00D2FF" FontSize="13" Width="240" HorizontalAlignment="Left" Margin="0,8,0,0"
+                                             GotFocus="TextBox_GotFocus" LostFocus="TextBox_LostFocus">
+                                        <TextBox.ToolTip>
+                                            <ToolTip Background="#16161A" BorderBrush="#FF00D2FF" BorderThickness="1" Foreground="#FFFFFF">
+                                                <StackPanel Margin="5">
+                                                    <TextBlock Text="Exemplos de Atalhos:" FontWeight="Bold" Foreground="#FF00D2FF" Margin="0,0,0,6"/>
+                                                    <TextBlock Text="• &lt;Ctrl&gt;+C (Teclas de Controle com &lt;&gt;)" Foreground="#E1E1E6"/>
+                                                    <TextBlock Text="• &lt;Ctrl&gt;+&lt;Alt&gt;+K (Teclas múltiplas)" Foreground="#E1E1E6"/>
+                                                    <TextBlock Text="• C (Tecla simples)" Foreground="#E1E1E6"/>
+                                                    <TextBlock Text="• F5 (Teclas de função)" Foreground="#E1E1E6"/>
+                                                    <TextBlock Text="• Enter, Tab, Space, Esc (Teclas especiais)" Foreground="#E1E1E6"/>
+                                                </StackPanel>
+                                            </ToolTip>
+                                        </TextBox.ToolTip>
+                                    </TextBox>
                                 </StackPanel>
 
                                 <!-- Column 2: Gesture pattern display -->
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="15,0">
                                     <TextBlock Text="Gesto: " Foreground="#8F8F9D" VerticalAlignment="Center"/>
                                     <TextBox Text="{Binding Pattern, UpdateSourceTrigger=PropertyChanged}" 
-                                             Foreground="#FF00D2FF" FontWeight="Bold" FontSize="16" 
-                                             Width="60" TextAlignment="Center" Background="#22222A" 
-                                             BorderBrush="#3D3D4A" BorderThickness="1" Padding="4"
+                                             Style="{StaticResource ModernTextBoxStyle}"
+                                             Foreground="#FF00D2FF" FontWeight="Bold" FontSize="15" 
+                                             Width="60" TextAlignment="Center" Padding="4"
                                              GotFocus="TextBox_GotFocus" LostFocus="TextBox_LostFocus"/>
                                 </StackPanel>
 

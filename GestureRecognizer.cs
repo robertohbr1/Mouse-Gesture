@@ -36,19 +36,18 @@ public class GestureRecognizer
 
         foreach (var pt in points)
         {
-            char dir = CheckSegment(pt, anchor, lastDir);
+            char dir = CheckSegment(pt, ref anchor, lastDir);
             if (dir != '\0')
             {
                 pattern.Append(dir);
                 lastDir = dir;
-                anchor = pt;
             }
         }
 
         return pattern.ToString();
     }
 
-    private char CheckSegment(POINT current, POINT anchor, char lastDir)
+    private char CheckSegment(POINT current, ref POINT anchor, char lastDir)
     {
         double dx = current.x - anchor.x;
         double dy = current.y - anchor.y;
@@ -59,6 +58,8 @@ public class GestureRecognizer
         }
 
         char dir = ClassifyDirection(dx, dy);
+        anchor = current;
+
         if (dir == lastDir)
         {
             return '\0';

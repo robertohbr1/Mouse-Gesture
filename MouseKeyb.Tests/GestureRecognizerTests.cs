@@ -80,4 +80,24 @@ public class GestureRecognizerTests
         var result = recognizer.Recognize(points);
         Assert.Equal(string.Empty, result);
     }
+
+    /// <summary>
+    /// Verifies that a gesture with a long segment and a perpendicular turn (e.g. Left then Up)
+    /// is recognized correctly as 'LU' without missing the turn.
+    /// Usage example: runs automatically via dotnet test.
+    /// </summary>
+    [Fact]
+    public void Recognize_ShouldReturnLeftUp_WhenMovingLeftThenUp_WithLongLeftSegment()
+    {
+        var recognizer = new GestureRecognizer { SegmentThreshold = 20.0 };
+        var points = new List<POINT>
+        {
+            new() { x = 60, y = 60 },
+            new() { x = 35, y = 60 },
+            new() { x = 0, y = 60 },
+            new() { x = 0, y = 35 }
+        };
+        var result = recognizer.Recognize(points);
+        Assert.Equal("LU", result);
+    }
 }

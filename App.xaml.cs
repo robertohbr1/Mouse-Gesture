@@ -36,6 +36,18 @@ public partial class App : System.Windows.Application
     private MouseHook _hook = null!;
     private OverlayWindow _overlay = null!;
     private System.Windows.Forms.NotifyIcon? _notifyIcon;
+    internal System.Windows.Forms.NotifyIcon? NotifyIcon => _notifyIcon;
+
+    private MainWindow? _settingsWindow;
+    public new MainWindow? MainWindow
+    {
+        get => _settingsWindow;
+        set
+        {
+            _settingsWindow = value;
+            base.MainWindow = value;
+        }
+    }
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -47,8 +59,16 @@ public partial class App : System.Windows.Application
             Shutdown();
             return;
         }
-        base.OnStartup(e);
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
+        base.OnStartup(e);
+        
+        string logPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "debug_log.txt");
+        try
+        {
+            System.IO.File.WriteAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] Application Startup.\n");
+        }
+        catch {}
+
         InitializeServices();
         SetupTrayIcon();
         StartHook();
@@ -76,7 +96,7 @@ public partial class App : System.Windows.Application
         _notifyIcon.ContextMenuStrip = CreateContextMenu();
     }
 
-    private System.Windows.Forms.ContextMenuStrip CreateContextMenu()
+    internal System.Windows.Forms.ContextMenuStrip CreateContextMenu()
     {
         var menu = new System.Windows.Forms.ContextMenuStrip();
         menu.Items.Add("Configurações", null, (s, e) => ShowMainWindow());
@@ -110,6 +130,16 @@ public partial class App : System.Windows.Application
         _overlay.AddPoint(new System.Windows.Point(pt.x, pt.y));
     }
 
+    private void Log(string message)
+    {
+        string logPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "debug_log.txt");
+        try
+        {
+            System.IO.File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] {message}\n");
+        }
+        catch {}
+    }
+
     private void OnGestureComplete(object? sender, List<POINT> points)
     {
         _overlay.FadeOutAndHide();
@@ -117,10 +147,10 @@ public partial class App : System.Windows.Application
         {
             return;
         }
-
         try
         {
             string pattern = _recognizer.Recognize(points);
+            Log($"Recognized gesture: '{pattern}'");
             if (!string.IsNullOrEmpty(pattern))
             {
                 ExecuteGestureAction(pattern);
@@ -128,6 +158,7 @@ public partial class App : System.Windows.Application
         }
         catch (Exception ex)
         {
+            Log($"Error in OnGestureComplete: {ex.Message}");
             System.Windows.MessageBox.Show($"Erro no gesto: {ex.Message}", "MouseKeyb", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
@@ -138,8 +169,27 @@ public partial class App : System.Windows.Application
         var match = activeSettings.Mappings.FirstOrDefault(m => m.Pattern.Equals(pattern, StringComparison.OrdinalIgnoreCase));
         if (match != null)
         {
-            var vkList = match.Keys.Select(k => k.Vk).ToArray();
-            _simulator.SimulateKeys(vkList);
+            Log($"Executing action: {match.ActionName} with keys: {match.KeysString}");
+            System.Threading.Tasks.Task.Run(async () =>
+            {
+                await System.Threading.Tasks.Task.Delay(50);
+                Dispatcher.BeginInvoke(new Action(() => 
+                {
+                    try
+                    {
+                        _simulator.SimulateKeys(match.Keys);
+                        Log("Keys simulated successfully.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Log($"Simulation error: {ex.Message}");
+                    }
+                }));
+            });
+        }
+        else
+        {
+            Log($"No action mapping found for pattern: '{pattern}'");
         }
     }
 
@@ -160,14 +210,45 @@ public partial class App : System.Windows.Application
         return hwnd == mainHelper || hwnd == overlayHelper;
     }
 
-    private void ShowMainWindow()
+    internal void ShowMainWindow()
     {
-        if (MainWindow == null)
+        string logPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "debug_log.txt");
+        try
         {
-            MainWindow = new MainWindow();
+            System.IO.File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] ShowMainWindow called. MainWindow is null: {MainWindow == null}\n");
         }
-        MainWindow.Show();
-        MainWindow.Activate();
+        catch {}
+
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            try
+            {
+                if (MainWindow == null)
+                {
+                    try { System.IO.File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] Creating new MainWindow\n"); } catch {}
+                    MainWindow = new MainWindow();
+                }
+                else
+                {
+                    try { System.IO.File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] Reusing existing MainWindow. Visibility: {MainWindow.Visibility}, WindowState: {MainWindow.WindowState}\n"); } catch {}
+                }
+
+                if (MainWindow.WindowState == WindowState.Minimized)
+                {
+                    MainWindow.WindowState = WindowState.Normal;
+                }
+                MainWindow.Visibility = Visibility.Visible;
+                MainWindow.Show();
+                MainWindow.Activate();
+                MainWindow.Focus();
+                
+                try { System.IO.File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] Show, Activate and Focus completed successfully. Visibility: {MainWindow.Visibility}, WindowState: {MainWindow.WindowState}\n"); } catch {}
+            }
+            catch (Exception ex)
+            {
+                try { System.IO.File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss}] ERROR inside Dispatcher: {ex.Message}\n{ex.StackTrace}\n"); } catch {}
+            }
+        }));
     }
 
     private void ExitApplication()

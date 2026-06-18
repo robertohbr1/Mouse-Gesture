@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace MouseKeyb;
 
@@ -36,8 +37,19 @@ public class MouseHook
     private bool _isTracking;
     private bool _isGestureActive;
     private bool _isSimulatingRightClick;
+    private bool _isCtrlRightClickActive;
     private POINT _startPoint;
     private readonly List<POINT> _points = new();
+
+    /// <summary>
+    /// Function to check if control key is pressed. Overridable for testing.
+    /// </summary>
+    public Func<bool> IsCtrlKeyPressed { get; set; } = DefaultIsCtrlKeyPressed;
+
+    /// <summary>
+    /// Action to open the Windows volume control. Overridable for testing.
+    /// </summary>
+    public Action OpenVolumeControlAction { get; set; } = DefaultOpenVolumeControl;
 
     public event EventHandler<POINT>? RightButtonDown;
     public event EventHandler<POINT>? GestureMove;
@@ -52,6 +64,15 @@ public class MouseHook
         public uint flags;
         public uint time;
         public UIntPtr dwExtraInfo;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct RECT
+    {
+        public int Left;
+        public int Top;
+        public int Right;
+        public int Bottom;
     }
 
     [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
@@ -69,6 +90,30 @@ public class MouseHook
 
     [DllImport("user32.dll")]
     private static extern void mouse_event(uint dwFlags, uint dx, uint dy, uint dwData, UIntPtr dwExtraInfo);
+
+    [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
+    private static extern short GetKeyState(int keyCode);
+
+    [DllImport("user32.dll")]
+    private static extern int GetSystemMetrics(int nIndex);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool SetForegroundWindow(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+    [DllImport("user32.dll")]
+    private static extern bool SetCursorPos(int X, int Y);
 
     /// <summary>
     /// Starts the global mouse hook.
@@ -125,7 +170,7 @@ public class MouseHook
         return CallNextHookEx(_hookId, nCode, wParam, lParam);
     }
 
-    private bool HandleMouseEvent(int message, POINT pt)
+    internal bool HandleMouseEvent(int message, POINT pt)
     {
         if (_isSimulatingRightClick)
         {
@@ -133,13 +178,38 @@ public class MouseHook
         }
         if (message == WM_RBUTTONDOWN)
         {
-            return HandleRightButtonDown(pt);
+            return ProcessRightButtonDown(pt);
+        }
+        if (message == WM_RBUTTONUP)
+        {
+            return ProcessRightButtonUp(pt);
         }
         if (message == WM_MOUSEMOVE && _isTracking)
         {
             return HandleMouseMove(pt);
         }
-        if (message == WM_RBUTTONUP && _isTracking)
+        return false;
+    }
+
+    private bool ProcessRightButtonDown(POINT pt)
+    {
+        if (IsCtrlKeyPressed())
+        {
+            _isCtrlRightClickActive = true;
+            OpenVolumeControlAction();
+            return true;
+        }
+        return HandleRightButtonDown(pt);
+    }
+
+    private bool ProcessRightButtonUp(POINT pt)
+    {
+        if (_isCtrlRightClickActive)
+        {
+            _isCtrlRightClickActive = false;
+            return true;
+        }
+        if (_isTracking)
         {
             return HandleRightButtonUp(pt);
         }
@@ -199,5 +269,67 @@ public class MouseHook
     private double GetDistance(POINT p1, POINT p2)
     {
         return Math.Sqrt(Math.Pow(p1.x - p2.x, 2) + Math.Pow(p1.y - p2.y, 2));
+    }
+
+    private static bool DefaultIsCtrlKeyPressed()
+    {
+        return (GetKeyState(0x11) & 0x8000) != 0;
+    }
+
+    private static void DefaultOpenVolumeControl()
+    {
+        try
+        {
+            var proc = Process.Start(new ProcessStartInfo("sndvol.exe") { UseShellExecute = true });
+            if (proc != null)
+            {
+                Task.Run(() => LocateAndPositionVolumeWindow(proc));
+            }
+        }
+        catch (Exception)
+        {
+            // Suppress or handle exception
+        }
+    }
+
+    private static async Task LocateAndPositionVolumeWindow(Process proc)
+    {
+        IntPtr hwnd = IntPtr.Zero;
+        for (int i = 0; i < 20; i++)
+        {
+            await Task.Delay(100);
+            proc.Refresh();
+            if (proc.HasExited) return;
+            if (proc.MainWindowHandle != IntPtr.Zero)
+            {
+                hwnd = proc.MainWindowHandle;
+                break;
+            }
+        }
+        if (hwnd == IntPtr.Zero)
+        {
+            var processes = Process.GetProcessesByName("sndvol");
+            if (processes.Length > 0) hwnd = processes[0].MainWindowHandle;
+        }
+        if (hwnd != IntPtr.Zero) CenterAndFocusWindow(hwnd);
+    }
+
+    private static void CenterAndFocusWindow(IntPtr hwnd)
+    {
+        if (GetWindowRect(hwnd, out RECT rect))
+        {
+            int width = rect.Right - rect.Left;
+            int height = rect.Bottom - rect.Top;
+            int screenWidth = GetSystemMetrics(0);
+            int screenHeight = GetSystemMetrics(1);
+            int newX = (screenWidth - width) / 2;
+            int newY = (screenHeight - height) / 2;
+            SetWindowPos(hwnd, new IntPtr(0), newX, newY, 0, 0, 0x0001 | 0x0040); // SWP_NOSIZE | SWP_SHOWWINDOW
+            ShowWindow(hwnd, 5); // SW_SHOW
+            SetWindowPos(hwnd, new IntPtr(-1), 0, 0, 0, 0, 0x0001 | 0x0002 | 0x0040); // HWND_TOPMOST
+            SetWindowPos(hwnd, new IntPtr(-2), 0, 0, 0, 0, 0x0001 | 0x0002 | 0x0040); // HWND_NOTOPMOST
+            SetForegroundWindow(hwnd);
+            SetCursorPos(screenWidth / 2, screenHeight / 2);
+        }
     }
 }

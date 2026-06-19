@@ -108,28 +108,59 @@ public partial class CircularMenuWindow : Window
         {
             return;
         }
-        try
-        {
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(config.ProgramPath) { UseShellExecute = true });
-        }
-        catch
-        {
-            TryFallback(config.ProgramPath);
-        }
+        LaunchProgram(config.ProgramPath);
         CloseWindow();
     }
 
-    private void TryFallback(string programPath)
+    private void LaunchProgram(string programPath)
     {
-        if (programPath.Equals("notepad++.exe", StringComparison.OrdinalIgnoreCase))
+        var (file, args) = ParseCommandLine(programPath);
+        try
+        {
+            var info = new System.Diagnostics.ProcessStartInfo(file) { Arguments = args, UseShellExecute = true };
+            System.Diagnostics.Process.Start(info);
+        }
+        catch
+        {
+            TryFallback(file, args);
+        }
+    }
+
+    private void TryFallback(string filePath, string arguments)
+    {
+        if (filePath.EndsWith("notepad++.exe", StringComparison.OrdinalIgnoreCase))
         {
             try
             {
-                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("notepad.exe") { UseShellExecute = true });
+                var info = new System.Diagnostics.ProcessStartInfo("notepad.exe") { Arguments = arguments, UseShellExecute = true };
+                System.Diagnostics.Process.Start(info);
                 return;
             }
             catch {}
         }
         System.Windows.MessageBox.Show("Erro ao executar o programa.", "MouseKeyb", MessageBoxButton.OK, MessageBoxImage.Error);
+    }
+
+    private static (string File, string Args) ParseCommandLine(string commandLine)
+    {
+        string trimmed = commandLine.Trim();
+        if (trimmed.StartsWith("\""))
+        {
+            int nextQuote = trimmed.IndexOf("\"", 1);
+            if (nextQuote != -1)
+            {
+                string file = trimmed.Substring(1, nextQuote - 1).Trim();
+                string args = trimmed.Substring(nextQuote + 1).Trim();
+                return (file, args);
+            }
+        }
+        int firstSpace = trimmed.IndexOf(" ");
+        if (firstSpace != -1)
+        {
+            string file = trimmed.Substring(0, firstSpace).Trim();
+            string args = trimmed.Substring(firstSpace + 1).Trim();
+            return (file, args);
+        }
+        return (trimmed, string.Empty);
     }
 }

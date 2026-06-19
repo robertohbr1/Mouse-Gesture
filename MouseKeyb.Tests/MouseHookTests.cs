@@ -14,22 +14,22 @@ public class MouseHookTests
     private const int WM_MOUSEMOVE = 0x0200;
 
     /// <summary>
-    /// Verifies that clicking right mouse button with Ctrl pressed triggers volume control opening and intercepts the event.
+    /// Verifies that clicking right mouse button with Ctrl pressed triggers circular menu opening and intercepts the event.
     /// </summary>
     [Fact]
-    public void HandleMouseEvent_WhenCtrlIsPressed_ShouldOpenVolumeControlAndSuppressEvent()
+    public void HandleMouseEvent_WhenCtrlIsPressed_ShouldOpenCircularMenuAndSuppressEvent()
     {
         var hook = new MouseHook();
-        bool volumeControlOpened = false;
+        bool circularMenuOpened = false;
 
         hook.IsCtrlKeyPressed = () => true;
-        hook.OpenVolumeControlAction = () => { volumeControlOpened = true; };
+        hook.OpenCircularMenuAction = () => { circularMenuOpened = true; };
 
         var point = new POINT { x = 10, y = 20 };
         bool result = hook.HandleMouseEvent(WM_RBUTTONDOWN, point);
 
         Assert.True(result);
-        Assert.True(volumeControlOpened);
+        Assert.True(circularMenuOpened);
     }
 
     /// <summary>
@@ -40,7 +40,7 @@ public class MouseHookTests
     {
         var hook = new MouseHook();
         hook.IsCtrlKeyPressed = () => true;
-        hook.OpenVolumeControlAction = () => { };
+        hook.OpenCircularMenuAction = () => { };
 
         var point = new POINT { x = 10, y = 20 };
         
@@ -54,24 +54,24 @@ public class MouseHookTests
     }
 
     /// <summary>
-    /// Verifies that when Ctrl is not pressed, right click down starts normal tracking and does not trigger volume control.
+    /// Verifies that when Ctrl is not pressed, right click down starts normal tracking and does not trigger circular menu.
     /// </summary>
     [Fact]
     public void HandleMouseEvent_WhenCtrlIsNotPressed_ShouldFallbackToNormalRightClick()
     {
         var hook = new MouseHook();
-        bool volumeControlOpened = false;
+        bool circularMenuOpened = false;
         bool rightButtonDownTriggered = false;
 
         hook.IsCtrlKeyPressed = () => false;
-        hook.OpenVolumeControlAction = () => { volumeControlOpened = true; };
+        hook.OpenCircularMenuAction = () => { circularMenuOpened = true; };
         hook.RightButtonDown += (sender, pt) => { rightButtonDownTriggered = true; };
 
         var point = new POINT { x = 10, y = 20 };
         bool result = hook.HandleMouseEvent(WM_RBUTTONDOWN, point);
 
         Assert.True(result); // Hook intercepts right down to track gesture
-        Assert.False(volumeControlOpened);
+        Assert.False(circularMenuOpened);
         Assert.True(rightButtonDownTriggered);
     }
 }

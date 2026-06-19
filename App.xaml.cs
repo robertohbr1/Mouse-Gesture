@@ -39,6 +39,7 @@ public partial class App : System.Windows.Application
     internal System.Windows.Forms.NotifyIcon? NotifyIcon => _notifyIcon;
 
     private MainWindow? _settingsWindow;
+    private CircularMenuWindow? _circularMenu;
     public new MainWindow? MainWindow
     {
         get => _settingsWindow;
@@ -81,7 +82,23 @@ public partial class App : System.Windows.Application
         _recognizer = new GestureRecognizer { SegmentThreshold = _settings.SegmentThreshold };
         _simulator = new KeyboardSimulator();
         _hook = new MouseHook();
+        _hook.OpenCircularMenuAction = ShowCircularMenu;
         _overlay = new OverlayWindow();
+    }
+
+    private void ShowCircularMenu()
+    {
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            if (_circularMenu != null)
+            {
+                _circularMenu.Close();
+            }
+            _circularMenu = new CircularMenuWindow();
+            _circularMenu.Closed += (s, e) => _circularMenu = null;
+            _circularMenu.Show();
+            _circularMenu.Activate();
+        }));
     }
 
     private void SetupTrayIcon()
@@ -213,7 +230,8 @@ public partial class App : System.Windows.Application
     {
         var mainHelper = MainWindow != null ? new WindowInteropHelper(MainWindow).Handle : IntPtr.Zero;
         var overlayHelper = _overlay != null ? new WindowInteropHelper(_overlay).Handle : IntPtr.Zero;
-        return hwnd == mainHelper || hwnd == overlayHelper;
+        var circularHelper = _circularMenu != null ? new WindowInteropHelper(_circularMenu).Handle : IntPtr.Zero;
+        return hwnd == mainHelper || hwnd == overlayHelper || hwnd == circularHelper;
     }
 
     internal void ShowMainWindow()

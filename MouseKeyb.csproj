@@ -15,4 +15,8 @@
     <None Remove="MouseKeyb.Tests\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Resource Include="menu.jpg" />
+  </ItemGroup>
+
 </Project>

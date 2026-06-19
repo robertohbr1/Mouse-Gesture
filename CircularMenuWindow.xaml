@@ -25,7 +25,7 @@
         <!-- Round N++ Button in the center hole of the lego donut -->
         <Button Width="110" Height="110" 
                 HorizontalAlignment="Center" VerticalAlignment="Center"
-                Margin="0,0,0,121"
+                Margin="0,0,0,242"
                 Cursor="Hand"
                 Click="Button_Click">
             <Button.Template>

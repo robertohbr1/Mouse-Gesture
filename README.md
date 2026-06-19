@@ -8,12 +8,15 @@ Ao segurar o **botão direito do mouse** e desenhar um gesto na tela (como arras
 
 ## 🚀 Recursos principais
 
+- **Menu Circular de Atalhos Rápidos**: Atalho global (`Ctrl` + `Botão Direito do Mouse`) que exibe um menu de layout circular com 6 botões customizáveis em cima de uma imagem de anel de blocos lego.
+- **Configuração Dinâmica de Botões**: Clique com o **botão direito** em qualquer um dos 6 botões circulares para abrir um modal de configuração e definir o texto do botão (que se ajusta automaticamente ao espaço usando `Viewbox`) e o caminho do programa executável associado.
+- **Execução Automática**: Clique com o **botão esquerdo** em qualquer botão configurado para iniciar o programa correspondente de forma instantânea (com fallback seguro de Notepad++ para Bloco de Notas).
 - **Gestos de Múltiplos Traços**: Suporta combinações de direções (Cima `U`, Baixo `D`, Esquerda `L`, Direita `R`), permitindo gestos como `DR` (Baixo depois Direita) ou `UL` (Cima depois Esquerda).
 - **Rastro Visual Neon**: Desenha uma linha brilhante ciano anti-aliasing semi-transparente que acompanha o cursor e desaparece com uma animação suave de *fade-out* ao soltar o botão.
-- **Não Rouba Foco**: A tela de desenho usa o estilo estendido `WS_EX_NOACTIVATE` do Windows. Ela nunca rouba o foco do programa que você está usando (Chrome, VS Code, Bloco de Notas), garantindo o envio correto do atalho de teclado.
-- **Gravador de Atalhos Integrado**: Painel administrativo escuro e moderno onde você pode cadastrar ações, atribuir padrões de gestos e registrar atalhos físicos pressionando as teclas diretamente.
-- **Execução em Segundo Plano**: O aplicativo minimiza-se nativamente para a bandeja do sistema (System Tray) ao fechar o painel.
-- **Instância Única (Single Instance)**: Proteção com `Mutex` para evitar conflito de hooks globais caso o usuário execute o programa mais de uma vez.
+- **Não Rouba Foco**: A tela de desenho de gestos usa o estilo estendido `WS_EX_NOACTIVATE` do Windows, garantindo que o foco nunca seja retirado do programa ativo.
+- **Gravador de Atalhos Integrado**: Painel administrativo escuro e moderno para cadastrar ações, atribuir gestos e capturar atalhos físicos pressionados no teclado.
+- **Execução em Segundo Plano**: O aplicativo se minimiza nativamente para a bandeja do sistema (System Tray).
+- **Instância Única (Single Instance)**: Proteção por `Mutex` que impede a execução de instâncias duplicadas e evita conflito de hooks.
 
 ---
 

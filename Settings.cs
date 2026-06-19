@@ -257,12 +257,22 @@ public class GestureMapping : INotifyPropertyChanged
 }
 
 /// <summary>
+/// Model representing the configuration of a circular menu button.
+/// </summary>
+public class CircularButtonConfig
+{
+    public string Caption { get; set; } = string.Empty;
+    public string ProgramPath { get; set; } = string.Empty;
+}
+
+/// <summary>
 /// Model representing all application configuration settings.
 /// </summary>
 public class AppSettings
 {
     public List<GestureMapping> Mappings { get; set; } = new();
     public double SegmentThreshold { get; set; } = 40.0;
+    public List<CircularButtonConfig> CircularButtons { get; set; } = new();
 
     private static readonly (string Pattern, string ActionName, string Keys)[] DefaultDefinitions = new[]
     {
@@ -280,6 +290,22 @@ public class AppSettings
     };
 
     /// <summary>
+    /// Creates a default circular buttons configuration.
+    /// </summary>
+    public static List<CircularButtonConfig> CreateDefaultCircularButtons()
+    {
+        return new List<CircularButtonConfig>
+        {
+            new() { Caption = "N++", ProgramPath = "notepad++.exe" },
+            new() { Caption = "Botão 2", ProgramPath = "" },
+            new() { Caption = "Botão 3", ProgramPath = "" },
+            new() { Caption = "Botão 4", ProgramPath = "" },
+            new() { Caption = "Botão 5", ProgramPath = "" },
+            new() { Caption = "Botão 6", ProgramPath = "" }
+        };
+    }
+
+    /// <summary>
     /// Creates a default settings instance.
     /// Usage example: var defaultSettings = AppSettings.CreateDefault();
     /// </summary>
@@ -295,6 +321,7 @@ public class AppSettings
                 Keys = GestureMapping.ParseKeysString(def.Keys)
             });
         }
+        settings.CircularButtons = CreateDefaultCircularButtons();
         return settings;
     }
 }
@@ -333,15 +360,25 @@ public class SettingsStore
             Save(defaults);
             return defaults;
         }
-
         try
         {
             string json = File.ReadAllText(_filePath);
-            return JsonSerializer.Deserialize<AppSettings>(json) ?? AppSettings.CreateDefault();
+            var settings = JsonSerializer.Deserialize<AppSettings>(json) ?? AppSettings.CreateDefault();
+            EnsureCircularButtons(settings);
+            return settings;
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException($"Failed to load settings from {_filePath}. Check JSON structure.", ex);
+            throw new InvalidOperationException($"Failed to load settings from {_filePath}.", ex);
+        }
+    }
+
+    private void EnsureCircularButtons(AppSettings settings)
+    {
+        if (settings.CircularButtons == null || settings.CircularButtons.Count == 0)
+        {
+            settings.CircularButtons = AppSettings.CreateDefaultCircularButtons();
+            Save(settings);
         }
     }
 

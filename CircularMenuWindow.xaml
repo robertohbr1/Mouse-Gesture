@@ -12,6 +12,66 @@
         Deactivated="Window_Deactivated"
         KeyDown="Window_KeyDown"
         MouseDown="Window_MouseDown">
+    <Window.Resources>
+        <Style x:Key="CircularButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="110"/>
+            <Setter Property="Height" Value="110"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid x:Name="ButtonGrid">
+                            <!-- Outer glow / border -->
+                            <Ellipse x:Name="OuterGlow" Fill="#1A000000" Stroke="#40FFFFFF" StrokeThickness="2">
+                                <Ellipse.Effect>
+                                    <DropShadowEffect Color="#FF00D2FF" BlurRadius="10" ShadowDepth="0" Opacity="0"/>
+                                </Ellipse.Effect>
+                            </Ellipse>
+                            <!-- Button base -->
+                            <Ellipse x:Name="BaseEllipse" Margin="2">
+                                <Ellipse.Fill>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#2C3E50" Offset="0"/>
+                                        <GradientStop Color="#000000" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Ellipse.Fill>
+                            </Ellipse>
+                            <!-- Content -->
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="BaseEllipse" Property="Fill">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#34495E" Offset="0"/>
+                                            <GradientStop Color="#1A1A1A" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter TargetName="OuterGlow" Property="Stroke" Value="#FF00D2FF"/>
+                                <Setter TargetName="OuterGlow" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect Color="#FF00D2FF" BlurRadius="15" ShadowDepth="0" Opacity="0.8"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonGrid" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="0.95" ScaleY="0.95" CenterX="55" CenterY="55"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
     <Grid>
         <Ellipse Width="380" Height="380" HorizontalAlignment="Center" VerticalAlignment="Center">
             <Ellipse.Fill>
@@ -22,61 +82,64 @@
             </Ellipse.Effect>
         </Ellipse>
 
-        <!-- Round N++ Button in the center hole of the lego donut -->
-        <Button Width="110" Height="110" 
-                HorizontalAlignment="Center" VerticalAlignment="Center"
-                Margin="0,0,0,242"
-                Cursor="Hand"
-                Click="Button_Click">
-            <Button.Template>
-                <ControlTemplate TargetType="Button">
-                    <Grid x:Name="ButtonGrid">
-                        <!-- Outer glow / border -->
-                        <Ellipse x:Name="OuterGlow" Fill="#1A000000" Stroke="#40FFFFFF" StrokeThickness="2">
-                            <Ellipse.Effect>
-                                <DropShadowEffect Color="#FF00D2FF" BlurRadius="10" ShadowDepth="0" Opacity="0"/>
-                            </Ellipse.Effect>
-                        </Ellipse>
-                        <!-- Button base -->
-                        <Ellipse x:Name="BaseEllipse" Margin="2">
-                            <Ellipse.Fill>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="#2C3E50" Offset="0"/>
-                                    <GradientStop Color="#000000" Offset="1"/>
-                                </LinearGradientBrush>
-                            </Ellipse.Fill>
-                        </Ellipse>
-                        <!-- Content -->
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Grid>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="BaseEllipse" Property="Fill">
-                                <Setter.Value>
-                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                        <GradientStop Color="#34495E" Offset="0"/>
-                                        <GradientStop Color="#1A1A1A" Offset="1"/>
-                                    </LinearGradientBrush>
-                                </Setter.Value>
-                            </Setter>
-                            <Setter TargetName="OuterGlow" Property="Stroke" Value="#FF00D2FF"/>
-                            <Setter TargetName="OuterGlow" Property="Effect">
-                                <Setter.Value>
-                                    <DropShadowEffect Color="#FF00D2FF" BlurRadius="15" ShadowDepth="0" Opacity="0.8"/>
-                                </Setter.Value>
-                            </Setter>
-                        </Trigger>
-                        <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="ButtonGrid" Property="RenderTransform">
-                                <Setter.Value>
-                                    <ScaleTransform ScaleX="0.95" ScaleY="0.95" CenterX="55" CenterY="55"/>
-                                </Setter.Value>
-                            </Setter>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Button.Template>
-            <TextBlock Text="N++" Foreground="White" FontSize="22" FontWeight="Bold" FontFamily="Segoe UI"/>
+        <!-- Button 1: N++ -->
+        <Button Style="{StaticResource CircularButtonStyle}" Tag="1" Click="Button_LeftClick" PreviewMouseRightButtonUp="Button_MouseRightButtonUp">
+            <Button.RenderTransform>
+                <TranslateTransform X="0" Y="-120"/>
+            </Button.RenderTransform>
+            <Viewbox Width="90" Height="90">
+                <TextBlock x:Name="Button1Text" Text="N++" Foreground="White" FontSize="22" FontWeight="Bold" FontFamily="Segoe UI" TextWrapping="Wrap" TextAlignment="Center" Margin="5"/>
+            </Viewbox>
+        </Button>
+
+        <!-- Button 2 -->
+        <Button Style="{StaticResource CircularButtonStyle}" Tag="2" Click="Button_LeftClick" PreviewMouseRightButtonUp="Button_MouseRightButtonUp">
+            <Button.RenderTransform>
+                <TranslateTransform X="104" Y="-60"/>
+            </Button.RenderTransform>
+            <Viewbox Width="90" Height="90">
+                <TextBlock x:Name="Button2Text" Text="Botão 2" Foreground="White" FontSize="18" FontWeight="Bold" FontFamily="Segoe UI" TextWrapping="Wrap" TextAlignment="Center" Margin="5"/>
+            </Viewbox>
+        </Button>
+
+        <!-- Button 3 -->
+        <Button Style="{StaticResource CircularButtonStyle}" Tag="3" Click="Button_LeftClick" PreviewMouseRightButtonUp="Button_MouseRightButtonUp">
+            <Button.RenderTransform>
+                <TranslateTransform X="104" Y="60"/>
+            </Button.RenderTransform>
+            <Viewbox Width="90" Height="90">
+                <TextBlock x:Name="Button3Text" Text="Botão 3" Foreground="White" FontSize="18" FontWeight="Bold" FontFamily="Segoe UI" TextWrapping="Wrap" TextAlignment="Center" Margin="5"/>
+            </Viewbox>
+        </Button>
+
+        <!-- Button 4 -->
+        <Button Style="{StaticResource CircularButtonStyle}" Tag="4" Click="Button_LeftClick" PreviewMouseRightButtonUp="Button_MouseRightButtonUp">
+            <Button.RenderTransform>
+                <TranslateTransform X="0" Y="120"/>
+            </Button.RenderTransform>
+            <Viewbox Width="90" Height="90">
+                <TextBlock x:Name="Button4Text" Text="Botão 4" Foreground="White" FontSize="18" FontWeight="Bold" FontFamily="Segoe UI" TextWrapping="Wrap" TextAlignment="Center" Margin="5"/>
+            </Viewbox>
+        </Button>
+
+        <!-- Button 5 -->
+        <Button Style="{StaticResource CircularButtonStyle}" Tag="5" Click="Button_LeftClick" PreviewMouseRightButtonUp="Button_MouseRightButtonUp">
+            <Button.RenderTransform>
+                <TranslateTransform X="-104" Y="60"/>
+            </Button.RenderTransform>
+            <Viewbox Width="90" Height="90">
+                <TextBlock x:Name="Button5Text" Text="Botão 5" Foreground="White" FontSize="18" FontWeight="Bold" FontFamily="Segoe UI" TextWrapping="Wrap" TextAlignment="Center" Margin="5"/>
+            </Viewbox>
+        </Button>
+
+        <!-- Button 6 -->
+        <Button Style="{StaticResource CircularButtonStyle}" Tag="6" Click="Button_LeftClick" PreviewMouseRightButtonUp="Button_MouseRightButtonUp">
+            <Button.RenderTransform>
+                <TranslateTransform X="-104" Y="-60"/>
+            </Button.RenderTransform>
+            <Viewbox Width="90" Height="90">
+                <TextBlock x:Name="Button6Text" Text="Botão 6" Foreground="White" FontSize="18" FontWeight="Bold" FontFamily="Segoe UI" TextWrapping="Wrap" TextAlignment="Center" Margin="5"/>
+            </Viewbox>
         </Button>
     </Grid>
 </Window>

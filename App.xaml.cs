@@ -186,29 +186,39 @@ public partial class App : System.Windows.Application
         }
     }
 
+    /// <summary>
+    /// Simulates the keyboard shortcut associated with a gesture mapping.
+    /// </summary>
+    public void SimulateGestureMapping(GestureMapping mapping)
+    {
+        if (mapping == null) return;
+        System.Threading.Tasks.Task.Run(async () =>
+        {
+            await System.Threading.Tasks.Task.Delay(50);
+            _ = Dispatcher.BeginInvoke(new Action(() => SimulateKeysInternal(mapping)));
+        });
+    }
+
+    private void SimulateKeysInternal(GestureMapping mapping)
+    {
+        try
+        {
+            _simulator.SimulateKeys(mapping.Keys);
+            Log("Keys simulated successfully.");
+        }
+        catch (Exception ex)
+        {
+            Log($"Simulation error: {ex.Message}");
+        }
+    }
+
     private void ExecuteGestureAction(string pattern)
     {
         var activeSettings = _store.Load();
         var match = activeSettings.Mappings.FirstOrDefault(m => m.Pattern.Equals(pattern, StringComparison.OrdinalIgnoreCase));
         if (match != null)
         {
-            Log($"Executing action: {match.ActionName} with keys: {match.KeysString}");
-            System.Threading.Tasks.Task.Run(async () =>
-            {
-                await System.Threading.Tasks.Task.Delay(50);
-                Dispatcher.BeginInvoke(new Action(() => 
-                {
-                    try
-                    {
-                        _simulator.SimulateKeys(match.Keys);
-                        Log("Keys simulated successfully.");
-                    }
-                    catch (Exception ex)
-                    {
-                        Log($"Simulation error: {ex.Message}");
-                    }
-                }));
-            });
+            SimulateGestureMapping(match);
         }
         else
         {

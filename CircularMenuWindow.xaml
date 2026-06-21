@@ -174,8 +174,9 @@
             </Viewbox>
         </Button>
 
-        <!-- Center Action Buttons (Config & Sair) -->
+        <!-- Center Action Buttons (Lista, Config & Sair) -->
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Button Content="Lista" Style="{StaticResource CenterButtonStyle}" Click="ListButton_Click"/>
             <Button Content="Config" Style="{StaticResource CenterButtonStyle}" Click="ConfigButton_Click"/>
             <Button Content="Sair" Style="{StaticResource CenterButtonStyle}" Click="ExitButton_Click"/>
         </StackPanel>

@@ -8,7 +8,8 @@ Ao segurar o **botão direito do mouse** e desenhar um gesto na tela (como arras
 
 ## 🚀 Recursos principais
 
-- **Menu Circular de Atalhos Rápidos**: Atalho global (`Ctrl` + `Botão Direito do Mouse`) que exibe um menu circular com 6 botões customizáveis em cima de uma imagem de blocos Lego, incluindo botões centrais de acesso rápido para **Configuração** e **Saída**.
+- **Menu Circular de Atalhos Rápidos**: Atalho global (`Ctrl` + `Botão Direito do Mouse`) que exibe um menu circular com 6 botões customizáveis em cima de uma imagem de blocos Lego, incluindo botões centrais de acesso rápido para **Lista**, **Configuração** e **Saída**.
+- **Visualização e Execução por Lista**: Novo botão central **Lista** que abre uma tela modal escura contendo a listagem de todos os comandos configurados (Nome e sequência de Movimentos). A lista é totalmente clicável e ao selecionar um item, executa imediatamente a simulação de teclas correspondente.
 - **Centralização Automática do Cursor**: Posiciona o ponteiro do mouse exatamente no centro do menu circular assim que ele é aberto, otimizando a velocidade e precisão de seleção dos comandos.
 - **Configuração Dinâmica de Botões**: Clique com o **botão direito** em qualquer um dos 6 botões circulares para abrir um modal de configuração e definir o texto do botão (ajustado via `Viewbox`) e o comando associado (com suporte a argumentos/parâmetros de linha de comando).
 - **Execução Automática**: Clique com o **botão esquerdo** no botão configurado para iniciar o programa correspondente instantaneamente com seus parâmetros associados.

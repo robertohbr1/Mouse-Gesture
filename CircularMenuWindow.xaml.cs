@@ -197,6 +197,24 @@ public partial class CircularMenuWindow : Window
         return (trimmed, string.Empty);
     }
 
+    private void ListButton_Click(object sender, RoutedEventArgs e)
+    {
+        _isConfiguring = true;
+        var listWindow = new CommandListWindow { Owner = this };
+        if (listWindow.ShowDialog() == true && listWindow.SelectedMapping != null)
+        {
+            if (System.Windows.Application.Current is App app)
+            {
+                app.SimulateGestureMapping(listWindow.SelectedMapping);
+            }
+            CloseWindow();
+        }
+        else
+        {
+            _isConfiguring = false;
+        }
+    }
+
     private void ConfigButton_Click(object sender, RoutedEventArgs e)
     {
         if (System.Windows.Application.Current is App app)

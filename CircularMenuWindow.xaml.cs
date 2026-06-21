@@ -9,6 +9,9 @@ namespace MouseKeyb;
 /// </summary>
 public partial class CircularMenuWindow : Window
 {
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern bool SetCursorPos(int X, int Y);
+
     /// <summary>
     /// Initializes the CircularMenuWindow.
     /// </summary>
@@ -16,6 +19,36 @@ public partial class CircularMenuWindow : Window
     {
         InitializeComponent();
         UpdateButtonsDisplay();
+        Loaded += (s, e) => PositionMouseAtCenter();
+    }
+
+    private void PositionMouseAtCenter()
+    {
+        try
+        {
+            double cx = ActualWidth / 2;
+            double cy = ActualHeight / 2;
+            System.Windows.Point screenCenter = PointToScreen(new System.Windows.Point(cx, cy));
+            SetCursorPos((int)screenCenter.X, (int)screenCenter.Y);
+        }
+        catch
+        {
+            PositionMouseAtPrimaryScreenCenter();
+        }
+    }
+
+    private void PositionMouseAtPrimaryScreenCenter()
+    {
+        var source = PresentationSource.FromVisual(this);
+        if (source?.CompositionTarget == null)
+        {
+            return;
+        }
+        var matrix = source.CompositionTarget.TransformToDevice;
+        double cx = SystemParameters.PrimaryScreenWidth / 2;
+        double cy = SystemParameters.PrimaryScreenHeight / 2;
+        var pixelCenter = matrix.Transform(new System.Windows.Point(cx, cy));
+        SetCursorPos((int)pixelCenter.X, (int)pixelCenter.Y);
     }
 
     private bool _isClosing;
@@ -162,5 +195,23 @@ public partial class CircularMenuWindow : Window
             return (file, args);
         }
         return (trimmed, string.Empty);
+    }
+
+    private void ConfigButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (System.Windows.Application.Current is App app)
+        {
+            app.ShowMainWindow();
+        }
+        CloseWindow();
+    }
+
+    private void ExitButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (System.Windows.Application.Current is App app)
+        {
+            app.ExitApplication();
+        }
+        CloseWindow();
     }
 }

@@ -24,6 +24,8 @@ if %errorlevel% neq 0 (
     exit /b %errorlevel%
 )
 
+C:\Projetos\MouseKeyb\bin\Release\net10.0-windows\MouseKeyb.exe
+
 echo.
 echo ===================================================
 echo   Compilação finalizada com sucesso!               

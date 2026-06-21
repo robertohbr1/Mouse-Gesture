@@ -30,6 +30,19 @@ public partial class OverlayWindow : Window
     private DispatcherTimer? _pauseTimer;
     private System.Windows.Point _lastMousePos;
 
+    private static readonly System.Windows.Media.Brush NormalTextBrush = CreateFrozenBrush("#FF00D2FF");
+    private static readonly System.Windows.Media.Brush NormalBorderBrush = CreateFrozenBrush("#3000D2FF");
+    private static readonly System.Windows.Media.Brush GreenTextBrush = CreateFrozenBrush("#FF00E676");
+    private static readonly System.Windows.Media.Brush GreenBorderBrush = CreateFrozenBrush("#8000E676");
+
+    private static System.Windows.Media.Brush CreateFrozenBrush(string hex)
+    {
+        var color = (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(hex);
+        var brush = new System.Windows.Media.SolidColorBrush(color);
+        brush.Freeze();
+        return brush;
+    }
+
     /// <summary>
     /// Initializes the OverlayWindow and sets its size to virtual screen bounds.
     /// Usage example: var overlay = new OverlayWindow();
@@ -101,18 +114,26 @@ public partial class OverlayWindow : Window
         try { settings = new SettingsStore().Load(); }
         catch { return; }
 
-        var up = settings.Mappings.FirstOrDefault(m => m.Pattern.Equals(currentPattern + "U", StringComparison.OrdinalIgnoreCase));
-        var down = settings.Mappings.FirstOrDefault(m => m.Pattern.Equals(currentPattern + "D", StringComparison.OrdinalIgnoreCase));
-        var left = settings.Mappings.FirstOrDefault(m => m.Pattern.Equals(currentPattern + "L", StringComparison.OrdinalIgnoreCase));
-        var right = settings.Mappings.FirstOrDefault(m => m.Pattern.Equals(currentPattern + "R", StringComparison.OrdinalIgnoreCase));
+        char lastChar = string.IsNullOrEmpty(currentPattern) ? '\0' : char.ToUpper(currentPattern[currentPattern.Length - 1]);
 
-        ConfigureLabel(UpBorder, UpLabel, up, mousePos.X, mousePos.Y, 0, -50, true, false, "↑ ");
-        ConfigureLabel(DownBorder, DownLabel, down, mousePos.X, mousePos.Y, 0, 50, true, false, "↓ ");
-        ConfigureLabel(LeftBorder, LeftLabel, left, mousePos.X, mousePos.Y, -50, 0, false, true, "← ");
-        ConfigureLabel(RightBorder, RightLabel, right, mousePos.X, mousePos.Y, 50, 0, false, true, "→ ");
+        var up = GetMappingForDirection(settings, currentPattern, 'U', lastChar);
+        var down = GetMappingForDirection(settings, currentPattern, 'D', lastChar);
+        var left = GetMappingForDirection(settings, currentPattern, 'L', lastChar);
+        var right = GetMappingForDirection(settings, currentPattern, 'R', lastChar);
+
+        ConfigureLabel(UpBorder, UpLabel, up, mousePos.X, mousePos.Y, 0, -50, true, false, "↑ ", lastChar == 'U');
+        ConfigureLabel(DownBorder, DownLabel, down, mousePos.X, mousePos.Y, 0, 50, true, false, "↓ ", lastChar == 'D');
+        ConfigureLabel(LeftBorder, LeftLabel, left, mousePos.X, mousePos.Y, -50, 0, false, true, "← ", lastChar == 'L');
+        ConfigureLabel(RightBorder, RightLabel, right, mousePos.X, mousePos.Y, 50, 0, false, true, "→ ", lastChar == 'R');
     }
 
-    private void ConfigureLabel(Border border, TextBlock label, GestureMapping? action, double x, double y, double offsetX, double offsetY, bool centerX, bool centerY, string prefix)
+    private GestureMapping? GetMappingForDirection(AppSettings settings, string currentPattern, char dir, char lastChar)
+    {
+        string patternToFind = (dir == lastChar) ? currentPattern : (currentPattern + dir);
+        return settings.Mappings.FirstOrDefault(m => m.Pattern.Equals(patternToFind, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private void ConfigureLabel(Border border, TextBlock label, GestureMapping? action, double x, double y, double offsetX, double offsetY, bool centerX, bool centerY, string prefix, bool isReleaseAction)
     {
         if (action == null)
         {
@@ -120,6 +141,8 @@ public partial class OverlayWindow : Window
             return;
         }
         label.Text = prefix + action.ActionName;
+        label.Foreground = isReleaseAction ? GreenTextBrush : NormalTextBrush;
+        border.BorderBrush = isReleaseAction ? GreenBorderBrush : NormalBorderBrush;
         border.Visibility = Visibility.Visible;
         Canvas.SetLeft(border, x + offsetX);
         Canvas.SetTop(border, y + offsetY);

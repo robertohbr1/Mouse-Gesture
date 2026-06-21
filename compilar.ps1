@@ -22,6 +22,8 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
+C:\Projetos\MouseKeyb\bin\Release\net10.0-windows\MouseKeyb.exe
+
 Write-Host ""
 Write-Host "===================================================" -ForegroundColor Green
 Write-Host "   Compilação finalizada com sucesso!               " -ForegroundColor Green

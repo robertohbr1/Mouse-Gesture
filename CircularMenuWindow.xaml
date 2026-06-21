@@ -70,6 +70,38 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        
+        <Style x:Key="CenterButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="75"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Margin" Value="0,4"/>
+            <Setter Property="Background" Value="#E0111116"/>
+            <Setter Property="Foreground" Value="#E1E1E6"/>
+            <Setter Property="BorderBrush" Value="#4000D2FF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="14">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FF1C1C24"/>
+                    <Setter Property="BorderBrush" Value="#FF00D2FF"/>
+                    <Setter Property="Foreground" Value="#FFFFFF"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -141,5 +173,11 @@
                 <TextBlock x:Name="Button6Text" Text="Botão 6" Foreground="White" FontSize="18" FontWeight="Bold" FontFamily="Segoe UI" TextWrapping="Wrap" TextAlignment="Center" Margin="5"/>
             </Viewbox>
         </Button>
+
+        <!-- Center Action Buttons (Config & Sair) -->
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Button Content="Config" Style="{StaticResource CenterButtonStyle}" Click="ConfigButton_Click"/>
+            <Button Content="Sair" Style="{StaticResource CenterButtonStyle}" Click="ExitButton_Click"/>
+        </StackPanel>
     </Grid>
 </Window>

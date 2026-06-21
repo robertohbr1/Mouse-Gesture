@@ -39,13 +39,28 @@ public class GestureMapping : INotifyPropertyChanged
     public string Pattern
     {
         get => _pattern;
-        set { _pattern = value; OnPropertyChanged(); }
+        set
+        {
+            string upper = value?.ToUpperInvariant().Trim() ?? string.Empty;
+            if (_pattern != upper)
+            {
+                _pattern = upper;
+                OnPropertyChanged();
+            }
+        }
     }
 
     public string ActionName
     {
         get => _actionName;
-        set { _actionName = value; OnPropertyChanged(); }
+        set
+        {
+            if (_actionName != value)
+            {
+                _actionName = value;
+                OnPropertyChanged();
+            }
+        }
     }
 
     public List<KeyStroke> Keys

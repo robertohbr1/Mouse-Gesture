@@ -17,6 +17,8 @@ public partial class MainWindow : Window
     private readonly AppSettings _settings;
     private readonly List<KeyStroke> _recordedKeys = new();
     private GestureMapping? _mappingBeingRecorded;
+    private readonly KeyboardRecordHook _recordHook = new();
+    private readonly Dictionary<GestureMapping, string> _activePatterns = new();
 
     public ObservableCollection<GestureMapping> Mappings { get; }
 
@@ -39,14 +41,17 @@ public partial class MainWindow : Window
         TrayMinimizeCheckBox.IsChecked = true;
         PreviewKeyDown += MainWindow_PreviewKeyDown;
         PreviewKeyUp += MainWindow_PreviewKeyUp;
+        _recordHook.KeyCallback = OnRecordKeyCallback;
+        InitializePatternValidation();
     }
 
     private void AddMappingButton_Click(object sender, RoutedEventArgs e)
     {
+        string uniquePattern = GetUniqueDefaultPattern();
         var newMapping = new GestureMapping
         {
             ActionName = "Novo Atalho",
-            Pattern = "R",
+            Pattern = uniquePattern,
             Keys = new List<KeyStroke> 
             { 
                 new() { Vk = 0x11, Name = "Ctrl" }, 
@@ -54,6 +59,11 @@ public partial class MainWindow : Window
             }
         };
         Mappings.Add(newMapping);
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            MappingsListBox.SelectedItem = newMapping;
+            MappingsListBox.ScrollIntoView(newMapping);
+        }), System.Windows.Threading.DispatcherPriority.Background);
     }
 
     private void DeleteMapping_Click(object sender, RoutedEventArgs e)
@@ -72,6 +82,7 @@ public partial class MainWindow : Window
             _recordedKeys.Clear();
             CapturedKeysText.Text = "Pressione as teclas...";
             RecorderOverlay.Visibility = Visibility.Visible;
+            _recordHook.Start();
         }
     }
 
@@ -92,6 +103,7 @@ public partial class MainWindow : Window
 
     private void CloseRecorderOverlay()
     {
+        _recordHook.Stop();
         _mappingBeingRecorded = null;
         _recordedKeys.Clear();
         RecorderOverlay.Visibility = Visibility.Collapsed;
@@ -181,8 +193,116 @@ public partial class MainWindow : Window
         }
     }
 
+    private void OnRecordKeyCallback(int msg, int vk)
+    {
+        var key = KeyInterop.KeyFromVirtualKey(vk);
+        string name = GetKeyName(key);
+        bool isDown = msg == 0x0100 || msg == 0x0104; // WM_KEYDOWN or WM_SYSKEYDOWN
+        if (isDown)
+        {
+            AddKeyDownRecord((ushort)vk, name);
+        }
+        else
+        {
+            _recordedKeys.Add(new KeyStroke { Vk = (ushort)vk, Name = name, Type = KeyEventType.Up });
+            UpdateCapturedKeysText();
+        }
+    }
+
+    private void AddKeyDownRecord(ushort vk, string name)
+    {
+        if (!_recordedKeys.Any(k => k.Vk == vk && k.Type == KeyEventType.Down))
+        {
+            _recordedKeys.Add(new KeyStroke { Vk = vk, Name = name, Type = KeyEventType.Down });
+            UpdateCapturedKeysText();
+        }
+    }
+
+    private void InitializePatternValidation()
+    {
+        foreach (var mapping in Mappings)
+        {
+            _activePatterns[mapping] = mapping.Pattern;
+            mapping.PropertyChanged += Mapping_PropertyChanged;
+        }
+        Mappings.CollectionChanged += Mappings_CollectionChanged;
+    }
+
+    private void Mappings_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    {
+        if (e.NewItems != null)
+        {
+            foreach (GestureMapping item in e.NewItems)
+            {
+                _activePatterns[item] = item.Pattern;
+                item.PropertyChanged += Mapping_PropertyChanged;
+            }
+        }
+        if (e.OldItems != null)
+        {
+            foreach (GestureMapping item in e.OldItems)
+            {
+                _activePatterns.Remove(item);
+                item.PropertyChanged -= Mapping_PropertyChanged;
+            }
+        }
+    }
+
+    private void Mapping_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (sender is GestureMapping mapping && e.PropertyName == nameof(GestureMapping.Pattern))
+        {
+            ValidateAndRevertPattern(mapping);
+        }
+    }
+
+    private void ValidateAndRevertPattern(GestureMapping mapping)
+    {
+        string newPattern = mapping.Pattern.ToUpperInvariant().Trim();
+        string oldPattern = _activePatterns.TryGetValue(mapping, out string? val) ? val : string.Empty;
+        if (newPattern == oldPattern) return;
+        bool exists = Mappings.Any(m => m != mapping && m.Pattern.Equals(newPattern, StringComparison.OrdinalIgnoreCase));
+        if (exists)
+        {
+            System.Windows.MessageBox.Show($"O gesto '{newPattern}' já está em uso por outro atalho.", "MouseKeyb", MessageBoxButton.OK, MessageBoxImage.Warning);
+            Dispatcher.BeginInvoke(new Action(() => mapping.Pattern = oldPattern));
+            return;
+        }
+        _activePatterns[mapping] = newPattern;
+        mapping.Pattern = newPattern;
+    }
+
+    private string GetUniqueDefaultPattern()
+    {
+        string[] candidates = { "R", "L", "U", "D", "UR", "UL", "DR", "DL", "RU", "RD", "LU", "LD" };
+        foreach (var cand in candidates)
+        {
+            if (!Mappings.Any(m => m.Pattern.Equals(cand, StringComparison.OrdinalIgnoreCase)))
+            {
+                return cand;
+            }
+        }
+        return GenerateRandomUniquePattern();
+    }
+
+    private string GenerateRandomUniquePattern()
+    {
+        var rand = new Random();
+        string[] dirs = { "R", "L", "U", "D" };
+        for (int i = 0; i < 100; i++)
+        {
+            string pat = dirs[rand.Next(4)] + dirs[rand.Next(4)];
+            if (!Mappings.Any(m => m.Pattern.Equals(pat, StringComparison.OrdinalIgnoreCase)))
+            {
+                return pat;
+            }
+        }
+        return "R";
+    }
+
     protected override void OnClosed(EventArgs e)
     {
+        _recordHook.Stop();
         base.OnClosed(e);
         if (System.Windows.Application.Current is App app)
         {

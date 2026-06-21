@@ -8,15 +8,17 @@ Ao segurar o **botão direito do mouse** e desenhar um gesto na tela (como arras
 
 ## 🚀 Recursos principais
 
-- **Menu Circular de Atalhos Rápidos**: Atalho global (`Ctrl` + `Botão Direito do Mouse`) que exibe um menu de layout circular com 6 botões customizáveis em cima de uma imagem de anel de blocos lego.
-- **Configuração Dinâmica de Botões**: Clique com o **botão direito** em qualquer um dos 6 botões circulares para abrir um modal de configuração e definir o texto do botão (que se ajusta automaticamente ao espaço usando `Viewbox`) e o comando do programa associado (com suporte nativo a parâmetros/argumentos de linha de comando).
-- **Execução Automática**: Clique com o **botão esquerdo** em qualquer botão configurado para iniciar o programa correspondente de forma instantânea com seus parâmetros associados (com fallback seguro de Notepad++ para Bloco de Notas).
-- **Gestos de Múltiplos Traços**: Suporta combinações de direções (Cima `U`, Baixo `D`, Esquerda `L`, Direita `R`), permitindo gestos como `DR` (Baixo depois Direita) ou `UL` (Cima depois Esquerda).
-- **Rastro Visual Neon**: Desenha uma linha brilhante ciano anti-aliasing semi-transparente que acompanha o cursor e desaparece com uma animação suave de *fade-out* ao soltar o botão.
-- **Não Rouba Foco**: A tela de desenho de gestos usa o estilo estendido `WS_EX_NOACTIVATE` do Windows, garantindo que o foco nunca seja retirado do programa ativo.
-- **Gravador de Atalhos Integrado**: Painel administrativo escuro e moderno para cadastrar ações, atribuir gestos e capturar atalhos físicos pressionados no teclado.
-- **Execução em Segundo Plano**: O aplicativo se minimiza nativamente para a bandeja do sistema (System Tray).
-- **Instância Única (Single Instance)**: Proteção por `Mutex` que impede a execução de instâncias duplicadas e evita conflito de hooks.
+- **Menu Circular de Atalhos Rápidos**: Atalho global (`Ctrl` + `Botão Direito do Mouse`) que exibe um menu circular com 6 botões customizáveis em cima de uma imagem de blocos Lego, incluindo botões centrais de acesso rápido para **Configuração** e **Saída**.
+- **Centralização Automática do Cursor**: Posiciona o ponteiro do mouse exatamente no centro do menu circular assim que ele é aberto, otimizando a velocidade e precisão de seleção dos comandos.
+- **Configuração Dinâmica de Botões**: Clique com o **botão direito** em qualquer um dos 6 botões circulares para abrir um modal de configuração e definir o texto do botão (ajustado via `Viewbox`) e o comando associado (com suporte a argumentos/parâmetros de linha de comando).
+- **Execução Automática**: Clique com o **botão esquerdo** no botão configurado para iniciar o programa correspondente instantaneamente com seus parâmetros associados.
+- **Gestos de Múltiplos Traços**: Combinações de direções (Cima `U`, Baixo `D`, Esquerda `L`, Direita `R`), permitindo gestos complexos como `DR` (Baixo-Direita) ou `UL` (Cima-Esquerda).
+- **Rastro Visual Neon & Realce de Direção**: Desenha uma linha brilhante ciano semi-transparente que acompanha o cursor e destaca com a cor verde a ação correspondente quando um movimento de liberação é detectado.
+- **Não Rouba Foco**: A tela de desenho usa o estilo estendido `WS_EX_NOACTIVATE` do Windows, garantindo que o foco continue no programa ativo.
+- **Gravador de Atalhos com Hook Global**: Painel administrativo escuro e moderno que utiliza um hook de teclado de baixo nível (`WH_KEYBOARD_LL`) temporário para capturar atalhos de teclado de forma isolada, limpa e segura (sem disparar ações em outros programas).
+- **Validação de Gestos Únicos**: Previne a criação de gestos duplicados por engano, exibindo um alerta visual e revertendo automaticamente para o padrão original ou seguro, além de normalizar letras para maiúsculas e remover espaços extras.
+- **Execução em Segundo Plano**: Minimiza-se nativamente para a bandeja do sistema (System Tray).
+- **Instância Única (Single Instance)**: Proteção por `Mutex` que impede a execução de instâncias duplicadas e evita conflito de ganchos do Windows.
 
 ---
 

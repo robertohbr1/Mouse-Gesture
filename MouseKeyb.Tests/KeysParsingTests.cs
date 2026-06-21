@@ -156,4 +156,14 @@ public class KeysParsingTests
         Assert.Equal("Shift", collapsed[2].Name);
         Assert.Equal(KeyEventType.Up, collapsed[2].Type);
     }
+
+    /// <summary>
+    /// Verifies that Pattern setter automatically converts string to uppercase and trims whitespace.
+    /// </summary>
+    [Fact]
+    public void Pattern_Setter_ShouldUppercaseAndTrim()
+    {
+        var mapping = new GestureMapping { Pattern = "  ud  " };
+        Assert.Equal("UD", mapping.Pattern);
+    }
 }

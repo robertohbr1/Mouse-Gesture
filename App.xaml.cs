@@ -275,7 +275,7 @@ public partial class App : System.Windows.Application
         }));
     }
 
-    private void ExitApplication()
+    internal void ExitApplication()
     {
         IsExiting = true;
         _hook.Stop();

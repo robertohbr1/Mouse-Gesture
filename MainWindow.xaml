@@ -209,7 +209,7 @@
                                 <!-- Column 2: Gesture pattern display -->
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="15,0">
                                     <TextBlock Text="Gesto: " Foreground="#8F8F9D" VerticalAlignment="Center"/>
-                                    <TextBox Text="{Binding Pattern, UpdateSourceTrigger=PropertyChanged}" 
+                                    <TextBox Text="{Binding Pattern, UpdateSourceTrigger=LostFocus}" 
                                              Style="{StaticResource ModernTextBoxStyle}"
                                              Foreground="#FF00D2FF" FontWeight="Bold" FontSize="15" 
                                              Width="60" TextAlignment="Center" Padding="4"

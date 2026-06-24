@@ -9,7 +9,7 @@ Ao segurar o **botão direito do mouse** e desenhar um gesto na tela (como arras
 ## 🚀 Recursos principais
 
 - **Menu Circular de Atalhos Rápidos**: Atalho global (`Ctrl` + `Botão Direito do Mouse`) que exibe um menu circular com 6 botões customizáveis em cima de uma imagem de blocos Lego, incluindo botões centrais de acesso rápido para **Lista**, **Configuração** e **Saída**.
-- **Visualização e Execução por Lista**: Novo botão central **Lista** que abre uma tela modal escura contendo a listagem de todos os comandos configurados (Nome e sequência de Movimentos). A lista é totalmente clicável e ao selecionar um item, executa imediatamente a simulação de teclas correspondente.
+- **Visualização e Execução por Lista (`CommandListWindow`)**: Um botão central **Lista** abre um painel modal moderno e escuro com a listagem de todos os comandos e gestos configurados. A lista é totalmente interativa e clicável: selecionar qualquer item executa instantaneamente o atalho de teclado correspondente. O modal também suporta fechamento rápido pressionando a tecla `Esc`.
 - **Centralização Automática do Cursor**: Posiciona o ponteiro do mouse exatamente no centro do menu circular assim que ele é aberto, otimizando a velocidade e precisão de seleção dos comandos.
 - **Configuração Dinâmica de Botões**: Clique com o **botão direito** em qualquer um dos 6 botões circulares para abrir um modal de configuração e definir o texto do botão (ajustado via `Viewbox`) e o comando associado (com suporte a argumentos/parâmetros de linha de comando).
 - **Execução Automática**: Clique com o **botão esquerdo** no botão configurado para iniciar o programa correspondente instantaneamente com seus parâmetros associados.
@@ -72,9 +72,16 @@ $shortcut.Save()
 
 ---
 
-## 🧪 Testes Unitários
+## 🧪 Testes Unitários e Integração
 
-O projeto conta com testes de cobertura para o motor do reconhecedor de gestos (`GestureRecognizer`). Para executá-los:
+O projeto possui uma suíte de testes robusta utilizando xUnit que cobre diversos componentes vitais:
+
+- **Reconhecimento de Gestos (`GestureRecognizerTests.cs`)**: Valida o algoritmo de identificação de trajetórias e direções (Cima `U`, Baixo `D`, Esquerda `L`, Direita `R`) e as margens de tolerância de pixels (`SegmentThreshold`).
+- **Análise de Teclas (`KeysParsingTests.cs`)**: Garante a tradução correta das strings de atalhos em eventos estruturados (como pressionar/soltar teclas de modificação).
+- **Ciclo de Vida e Bandeja do Sistema (`TrayMenuTests.cs`)**: Testa a integração de janelas no WPF, comportamento de ocultar/minimizar janelas ao fechar e interação com itens do menu do System Tray.
+- **Intercepção Global (`MouseHookTests.cs`)**: Verifica a ativação e comportamento do gancho global de mouse de baixo nível.
+
+Para rodar todos os testes automatizados da aplicação:
 ```powershell
 dotnet test MouseKeyb.Tests/MouseKeyb.Tests.csproj
 ```

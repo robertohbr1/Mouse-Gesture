@@ -288,6 +288,8 @@ public class AppSettings
     public List<GestureMapping> Mappings { get; set; } = new();
     public double SegmentThreshold { get; set; } = 40.0;
     public List<CircularButtonConfig> CircularButtons { get; set; } = new();
+    public bool StartWithWindows { get; set; } = false;
+
 
     private static readonly (string Pattern, string ActionName, string Keys)[] DefaultDefinitions = new[]
     {

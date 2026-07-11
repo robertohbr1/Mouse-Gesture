@@ -39,6 +39,7 @@ public partial class MainWindow : Window
         MappingsListBox.ItemsSource = Mappings;
         ThresholdSlider.Value = _settings.SegmentThreshold;
         TrayMinimizeCheckBox.IsChecked = true;
+        StartWithWindowsCheckBox.IsChecked = _settings.StartWithWindows;
         PreviewKeyDown += MainWindow_PreviewKeyDown;
         PreviewKeyUp += MainWindow_PreviewKeyUp;
         _recordHook.KeyCallback = OnRecordKeyCallback;
@@ -158,7 +159,9 @@ public partial class MainWindow : Window
     {
         _settings.Mappings = new List<GestureMapping>(Mappings);
         _settings.SegmentThreshold = ThresholdSlider.Value;
+        _settings.StartWithWindows = StartWithWindowsCheckBox.IsChecked == true;
         _store.Save(_settings);
+        StartupService.Apply(new WindowsStartupRegistry(), _settings.StartWithWindows);
         System.Windows.MessageBox.Show("Configurações salvas!", "MouseKeyb", MessageBoxButton.OK, MessageBoxImage.Information);
     }
 

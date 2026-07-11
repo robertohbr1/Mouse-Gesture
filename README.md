@@ -20,6 +20,7 @@ Ao segurar o **botão direito do mouse** e desenhar um gesto na tela (como arras
 - **Validação de Gestos Únicos**: Previne a criação de gestos duplicados por engano, exibindo um alerta visual e revertendo automaticamente para o padrão original ou seguro, além de normalizar letras para maiúsculas e remover espaços extras.
 - **Execução em Segundo Plano**: Minimiza-se nativamente para a bandeja do sistema (System Tray).
 - **Instância Única (Single Instance)**: Proteção por `Mutex` que impede a execução de instâncias duplicadas e evita conflito de ganchos do Windows.
+- **Inicialização Automática com o Windows**: Opção configurável diretamente na tela de configurações globais para iniciar o aplicativo automaticamente quando o Windows iniciar (gerenciada de forma segura através do registro do Windows).
 
 ---
 
@@ -80,6 +81,7 @@ O projeto possui uma suíte de testes robusta utilizando xUnit que cobre diverso
 - **Análise de Teclas (`KeysParsingTests.cs`)**: Garante a tradução correta das strings de atalhos em eventos estruturados (como pressionar/soltar teclas de modificação).
 - **Ciclo de Vida e Bandeja do Sistema (`TrayMenuTests.cs`)**: Testa a integração de janelas no WPF, comportamento de ocultar/minimizar janelas ao fechar e interação com itens do menu do System Tray.
 - **Intercepção Global (`MouseHookTests.cs`)**: Verifica a ativação e comportamento do gancho global de mouse de baixo nível.
+- **Inicialização do Sistema (`StartupServiceTests.cs`)**: Valida o registro e remoção das chaves de inicialização automática no registro do Windows de forma mockada.
 
 Para rodar todos os testes automatizados da aplicação:
 ```powershell
@@ -127,7 +129,8 @@ As configurações e mapeamentos são serializados em formato JSON e salvos na p
       ]
     }
   ],
-  "SegmentThreshold": 40.0
+  "SegmentThreshold": 40.0,
+  "StartWithWindows": false
 }
 ```
 

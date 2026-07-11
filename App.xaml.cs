@@ -84,6 +84,7 @@ public partial class App : System.Windows.Application
         _hook = new MouseHook();
         _hook.OpenCircularMenuAction = ShowCircularMenu;
         _overlay = new OverlayWindow();
+        StartupService.Apply(new WindowsStartupRegistry(), _settings.StartWithWindows);
     }
 
     private void ShowCircularMenu()

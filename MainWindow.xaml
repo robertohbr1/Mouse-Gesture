@@ -246,6 +246,7 @@
                         </Grid>
 
                         <CheckBox x:Name="TrayMinimizeCheckBox" Content="Minimizar ao fechar a janela" Foreground="#FFFFFF" Margin="0,0,0,15"/>
+                        <CheckBox x:Name="StartWithWindowsCheckBox" Content="Iniciar com o Windows" Foreground="#FFFFFF" Margin="0,0,0,15"/>
 
                         <Border Background="#22222A" CornerRadius="6" Padding="10" Margin="0,10,0,0">
                             <StackPanel>
